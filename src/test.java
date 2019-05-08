@@ -1,31 +1,10 @@
 public class test {
     public static void main(String[] args) {
         Cube c = new Cube(3);
-        System.out.println(c);
-//        c.rotate('U');
-        c.rotate('U');
-        c.rotate('B');
-        c.rotate('F');
-        c.rotate('U');
-        c.rotate('B');
-        c.rotate('B');
-        c.rotate('U');
-        c.rotate('F');
+        //Permutar centros
+//        c.scramble("L'RFB'L'RU'DLR'U'D");
 
-        c.rotate('F');
-        c.rotate('U');
-        c.rotate('U');
-        c.rotate('F');
-        c.rotate('B');
-        c.rotate('F');
-        c.rotate('B');
-        c.rotate('F');
-        c.rotate('U');
-        c.rotate('B');
-        c.rotate('U');
-        c.rotate('F');
-
-
+        c.scramble("F' D B' R' U2 F R' F' R2 L2 B' U F' B2 R' F B2 U' D' R L' F2 B U D");
         System.out.println(c);
 
     }
