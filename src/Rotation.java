@@ -1,30 +1,30 @@
 public class Rotation {
 
     private char orientation;
-    private char prime;
+    private boolean isPrime;
     private int n;
 
     public Rotation(char orientation) {
         this.orientation = orientation;
-        this.prime = 0;
+        this.isPrime = false;
         this.n = 1;
     }
 
-    public Rotation(char orientation, char prime) {
+    public Rotation(char orientation, boolean isPrime) {
         this.orientation = orientation;
-        this.prime = prime;
+        this.isPrime = isPrime;
         this.n = 1;
     }
 
     public Rotation(char orientation, int n) {
         this.orientation = orientation;
         this.n = n;
-        this.prime = 0;
+        this.isPrime = false;
     }
 
-    public Rotation(char orientation, char prime, int n) {
+    public Rotation(char orientation, boolean isPrime, int n) {
         this.orientation = orientation;
-        this.prime = prime;
+        this.isPrime = isPrime;
         this.n = n;
     }
 
@@ -36,12 +36,12 @@ public class Rotation {
         this.orientation = orientation;
     }
 
-    public char getPrime() {
-        return prime;
+    public boolean isPrime() {
+        return isPrime;
     }
 
-    public void setPrime(char prime) {
-        this.prime = prime;
+    public void setIsPrime(boolean isPrime) {
+        this.isPrime = isPrime;
     }
 
     public int getN() {
