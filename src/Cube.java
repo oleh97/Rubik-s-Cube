@@ -9,22 +9,58 @@ public class Cube implements Comparable<Cube> {
     private int cubeSize;
     private double heuristic;
 
+    //The solver wont perform this move as is an already cheched state
+    String lastMove;
+    StringBuilder movesToSolve;
+    int movesCount;
+
     Cube(int cubeSize) {
+        this.movesCount = 0;
+        this.lastMove = "N";
+        this.movesToSolve = new StringBuilder();
         this.heuristic = 0;
         this.cubeSize = cubeSize;
         faces = new Face[6];
+        char[] orientations = {'F', 'L', 'R', 'U', 'D', 'B'};
         for(int i = 0; i < 6; i++) {
-            char[] orientations = {'F', 'L', 'R', 'U', 'D', 'B'};
             Face f = new Face(cubeSize, orientations[i]);
             f.fillFace();
             faces[i] = f;
         }
     }
 
+    Cube() {
+        this.movesCount = 0;
+        faces = new Face[6];
+        this.heuristic = -1;
+        this.cubeSize = 0;
+        this.lastMove = "N";
+        this.movesToSolve = new StringBuilder();
+    }
+
     Cube(Cube c) {
-        this.faces = c.faces;
+        this.movesCount = 0;
+        this.lastMove = c.getLastMove();
+        this.movesToSolve = new StringBuilder(c.movesToSolve.toString());
+        faces = new Face[6];
         this.cubeSize = c.cubeSize;
-        this.heuristic = c.heuristic;
+        this.heuristic = c.getHeuristic();
+        for(int k = 0; k < this.faces.length; k++) {
+            this.faces[k] = new Face(c.getFaces()[k].getColors(), c.getFaces()[k].getFaceOrientation(), c.cubeSize, c.getFaces()[k].getZ());
+//            for(int i = 0; i < this.cubeSize; i++) {
+//                for (int j = 0; j < this.cubeSize; j++) {
+//                    this.faces[k].getColors()[i][j] = c.getFaces()[k].getColors()[i][j];
+//                }
+//            }
+        }
+    }
+
+    public String getLastMove() {
+        return lastMove;
+    }
+
+    public void setLastMove(String lastMove) {
+        this.lastMove = lastMove;
     }
 
     public double getHeuristic() {
@@ -37,7 +73,17 @@ public class Cube implements Comparable<Cube> {
 
     @Override
     public int compareTo(@NotNull Cube c) {
-        return  Double.compare(this.heuristic, c.heuristic);
+        boolean distinct = false;
+        for(int k = 0; k < this.faces.length; k++) {
+            for(int i = 0; i < this.cubeSize; i++) {
+                for (int j = 0; j < this.cubeSize; j++) {
+                    if(this.faces[k].getColors()[i][j].getColor() != c.getFaces()[k].getColors()[i][j].getColor()) distinct = true;
+                }
+            }
+        }
+        if(!distinct) return 0;
+        if(this.heuristic <= c.heuristic) return -1;
+        else return 1;
     }
 
     void scramble(String r) {
@@ -72,7 +118,7 @@ public class Cube implements Comparable<Cube> {
         Face f = getFaceByOrientation(rotation.getOrientation());
         if(f != null) {
             for(int k = 0; k < rotation.getN(); k++) {
-                Face fCopy = new Face(f.getColors(), f.getFaceOrientation(), f.getCubeSize());
+                Face fCopy = new Face(f.getColors(), f.getFaceOrientation(), f.getCubeSize(), f.getZ());
                 int iAux = cubeSize;
                 int jAux = -1;
                 int jAuxPrime = -1;
@@ -85,9 +131,15 @@ public class Cube implements Comparable<Cube> {
                         iAuxPrime--;
                         if(rotation.isPrime()) {
                             f.getColors()[iAuxPrime][jAuxPrime] = fCopy.getColors()[i][j];
+                            f.getColors()[iAuxPrime][jAuxPrime].setNewX(iAuxPrime);
+                            f.getColors()[iAuxPrime][jAuxPrime].setNewY(jAuxPrime);
+                            f.getColors()[iAuxPrime][jAuxPrime].setNewZ(f.getZ());
                         }
                         else {
                             f.getColors()[jAux][iAux] = fCopy.getColors()[i][j];
+                            f.getColors()[jAux][iAux].setNewX(jAux);
+                            f.getColors()[jAux][iAux].setNewY(iAux);
+                            f.getColors()[iAuxPrime][jAuxPrime].setNewZ(f.getZ());
                         }
                     }
                     jAux = -1;
@@ -98,15 +150,23 @@ public class Cube implements Comparable<Cube> {
         }
     }
 
+    private void updateSquares(Square[][] colors, int i, int j, int k, Square[] newColors, int z) {
+        colors[i][j] = newColors[k];
+        colors[i][j].setNewX(i);
+        colors[i][j].setNewY(j);
+        colors[i][j].setNewZ(z);
+    }
+
+    @SuppressWarnings("Duplicates")
     private void rotateAdjacents(Face f, Rotation r) {
         Face fLeft = getFaceByOrientation(f.getAdjacentFaces()[0]);
         Face fTop= getFaceByOrientation(f.getAdjacentFaces()[1]);
         Face fRight= getFaceByOrientation(f.getAdjacentFaces()[2]);
         Face fBottom= getFaceByOrientation(f.getAdjacentFaces()[3]);
-        char[] left = new char[cubeSize];
-        char[] top = new char[cubeSize];
-        char[] right = new char[cubeSize];
-        char[] bottom = new char[cubeSize];
+        Square[] left = new Square[cubeSize];
+        Square[] top = new Square[cubeSize];
+        Square[] right = new Square[cubeSize];
+        Square[] bottom = new Square[cubeSize];
         if(fLeft != null && fTop != null && fRight != null && fBottom != null){
             int j = cubeSize-1;
             int maxSize = cubeSize - 1;
@@ -120,19 +180,19 @@ public class Cube implements Comparable<Cube> {
                     }
                     if(r.isPrime()) {
                         for (int i = 0; i < cubeSize; i++) {
-                            fLeft.getColors()[i][maxSize] = top[j];
-                            fTop.getColors()[maxSize][i] = right[j];
-                            fRight.getColors()[i][0] = bottom[j];
-                            fBottom.getColors()[0][i] = left[j];
+                            updateSquares(fLeft.getColors(), i, maxSize, j, top, fLeft.getZ());
+                            updateSquares(fTop.getColors(), maxSize, i, j, right, fTop.getZ());
+                            updateSquares(fRight.getColors(), i, 0, j, bottom, fRight.getZ());
+                            updateSquares(fBottom.getColors(), 0, i, j, left, fBottom.getZ());
                             j--;
                         }
                     }
                     else {
                         for (int i = 0; i < cubeSize; i++) {
-                            fLeft.getColors()[i][maxSize] = bottom[i];
-                            fTop.getColors()[maxSize][i] = left[i];
-                            fRight.getColors()[i][0] = top[i];
-                            fBottom.getColors()[0][i] = right[i];
+                            updateSquares(fLeft.getColors(), i, maxSize, i, bottom, fLeft.getZ());
+                            updateSquares(fTop.getColors(), maxSize, i, i, left, fTop.getZ());
+                            updateSquares(fRight.getColors(), i, 0, i, top, fRight.getZ());
+                            updateSquares(fBottom.getColors(), 0, i, i, right, fBottom.getZ());
                         }
                     }
                     break;
@@ -142,22 +202,47 @@ public class Cube implements Comparable<Cube> {
                         top[i] = fTop.getColors()[0][maxSize-i];
                         right[i] = fRight.getColors()[i][0];
                         bottom[i] = fBottom.getColors()[maxSize][maxSize-i];
+
+
                     }
                     if(r.isPrime()) {
                         for (int i = 0; i < cubeSize; i++) {
-                            fLeft.getColors()[i][maxSize] = top[j];
-                            fTop.getColors()[0][i] = right[j];
-                            fRight.getColors()[i][0] = bottom[j];
-                            fBottom.getColors()[maxSize][i] = left[j];
+
+                            updateSquares(fLeft.getColors(), i, maxSize, j, top, fLeft.getZ());
+                            updateSquares(fTop.getColors(), 0, i, j, right, fTop.getZ());
+                            updateSquares(fRight.getColors(),i, 0, j, bottom, fRight.getZ());
+                            updateSquares(fBottom.getColors(), maxSize, i, j, left, fBottom.getZ());
                             j--;
+
+//                            fLeft.getColors()[i][maxSize] = top[j];
+//                            fLeft.getColors()[i][maxSize].setNewX(i);
+//                            fLeft.getColors()[i][maxSize].setNewY(maxSize);
+//                            fLeft.getColors()[i][maxSize].setNewZ(fLeft.getZ());
+//
+//                            fTop.getColors()[0][i] = right[j];
+//                            fTop.getColors()[i][maxSize].setNewX(0);
+//                            fTop.getColors()[i][maxSize].setNewY(i);
+//                            fTop.getColors()[i][maxSize].setNewZ(fTop.getZ());
+//
+//                            fRight.getColors()[i][0] = bottom[j];
+//                            fBottom.getColors()[maxSize][i] = left[j];
+//                            j--;
                         }
                     }
                     else {
                         for (int i = 0; i < cubeSize; i++) {
-                            fLeft.getColors()[i][maxSize] = bottom[i];
-                            fTop.getColors()[0][i] = left[i];
-                            fRight.getColors()[i][0] = top[i];
-                            fBottom.getColors()[maxSize][i] = right[i];
+                            updateSquares(fLeft.getColors(), i, maxSize, i, bottom, fLeft.getZ());
+                            updateSquares(fTop.getColors(), 0, i, i, left, fTop.getZ());
+                            updateSquares(fRight.getColors(), i, 0, i, top, fRight.getZ());
+                            updateSquares(fBottom.getColors(), maxSize, i, i, right, fBottom.getZ());
+//                            fLeft.getColors()[i][maxSize] = bottom[i];
+
+//
+//                            fTop.getColors()[0][i] = left[i];
+
+//
+//                            fRight.getColors()[i][0] = top[i];
+//                            fBottom.getColors()[maxSize][i] = right[i];
                         }
                     }
                     break;
@@ -170,18 +255,39 @@ public class Cube implements Comparable<Cube> {
                     }
                     if(r.isPrime()) {
                         for (int i = 0; i < cubeSize; i++) {
-                            fLeft.getColors()[0][i] = top[i];
-                            fTop.getColors()[0][i] = right[i];
-                            fRight.getColors()[0][i] = bottom[i];
-                            fBottom.getColors()[0][i] = left[i];
+                            updateSquares(fLeft.getColors(), 0, i, i, top, fLeft.getZ());
+                            updateSquares(fTop.getColors(), 0, i, i, right, fTop.getZ());
+                            updateSquares(fRight.getColors(),0, i, i, bottom, fRight.getZ());
+                            updateSquares(fBottom.getColors(), 0, i, i, left, fBottom.getZ());
+
+//                            fLeft.getColors()[0][i] = top[i];
+
+//
+//                            fTop.getColors()[0][i] = right[i];
+
+//
+//                            fRight.getColors()[0][i] = bottom[i];
+//                            fBottom.getColors()[0][i] = left[i];
                         }
                     }
                     else {
                         for (int i = 0; i < cubeSize; i++) {
-                            fLeft.getColors()[0][i] = bottom[i];
-                            fTop.getColors()[0][i] = left[i];
-                            fRight.getColors()[0][i] = top[i];
-                            fBottom.getColors()[0][i] = right[i];
+                            updateSquares(fLeft.getColors(), 0, i, i, bottom, fLeft.getZ());
+                            updateSquares(fTop.getColors(), 0, i, i, left, fTop.getZ());
+                            updateSquares(fRight.getColors(), 0, i, i, top, fRight.getZ());
+                            updateSquares(fBottom.getColors(), 0, i, i, right, fBottom.getZ());
+//                            fLeft.getColors()[0][i] = bottom[i];
+
+//
+//                            fTop.getColors()[0][i] = left[i];
+
+//
+//                            fRight.getColors()[0][i] = top[i];
+//
+//
+//                            fBottom.getColors()[0][i] = right[i];
+
+
                         }
                     }
                     break;
@@ -191,22 +297,48 @@ public class Cube implements Comparable<Cube> {
                         top[i] = fTop.getColors()[i][0];
                         right[i] = fRight.getColors()[i][0];
                         bottom[i] = fBottom.getColors()[maxSize-i][0];
+
+
                     }
                     if(r.isPrime()) {
                         for (int i = 0; i < cubeSize; i++) {
-                            fLeft.getColors()[i][maxSize] = top[j];
-                            fTop.getColors()[i][0] = right[i];
-                            fRight.getColors()[i][0] = bottom[j];
-                            fBottom.getColors()[i][0] = left[i];
+                            updateSquares(fLeft.getColors(), i, maxSize, j, top, fLeft.getZ());
+                            updateSquares(fTop.getColors(), i, 0, i, right, fTop.getZ());
+                            updateSquares(fRight.getColors(), i, 0, j, bottom, fRight.getZ());
+                            updateSquares(fBottom.getColors(), i, 0, i, left, fBottom.getZ());
+//                            fLeft.getColors()[i][maxSize] = top[j];
+
+//
+//                            fTop.getColors()[i][0] = right[i];
+
+//
+//                            fRight.getColors()[i][0] = bottom[j];
+//
+//
+//                            fBottom.getColors()[i][0] = left[i];
+
+
                             j--;
                         }
                     }
                     else {
                         for (int i = 0; i < cubeSize; i++) {
-                            fLeft.getColors()[i][maxSize] = bottom[i];
-                            fTop.getColors()[i][0] = left[i];
-                            fRight.getColors()[i][0] = top[i];
-                            fBottom.getColors()[i][0] = right[i];
+                            updateSquares(fLeft.getColors(), i, maxSize, i, bottom, fLeft.getZ());
+                            updateSquares(fTop.getColors(), i, 0, i, left, fTop.getZ());
+                            updateSquares(fRight.getColors(), i, 0, i, top, fRight.getZ());
+                            updateSquares(fBottom.getColors(), i, 0, i, right, fBottom.getZ());
+//                            fLeft.getColors()[i][maxSize] = bottom[i];
+
+//
+//                            fTop.getColors()[i][0] = left[i];
+
+//
+//                            fRight.getColors()[i][0] = top[i];
+//
+//
+//                            fBottom.getColors()[i][0] = right[i];
+
+
                         }
                     }
                     break;
@@ -219,19 +351,43 @@ public class Cube implements Comparable<Cube> {
                     }
                     if(r.isPrime()) {
                         for (int i = 0; i < cubeSize; i++) {
-                            fLeft.getColors()[i][maxSize] = top[j];
-                            fTop.getColors()[i][maxSize] = right[i];
-                            fRight.getColors()[i][0] = bottom[j];
-                            fBottom.getColors()[i][maxSize] = left[i];
+                            updateSquares(fLeft.getColors(), i, maxSize, j, top, fLeft.getZ());
+                            updateSquares(fTop.getColors(), i, maxSize, i, right, fTop.getZ());
+                            updateSquares(fRight.getColors(), i, 0, j, bottom, fRight.getZ());
+                            updateSquares(fBottom.getColors(), i, maxSize, i, left, fBottom.getZ());
+//                            fLeft.getColors()[i][maxSize] = top[j];
+
+//
+//                            fTop.getColors()[i][maxSize] = right[i];
+
+//
+//                            fRight.getColors()[i][0] = bottom[j];
+//
+//
+//                            fBottom.getColors()[i][maxSize] = left[i];
+
+
                             j--;
                         }
                     }
                     else {
                         for (int i = 0; i < cubeSize; i++) {
-                            fLeft.getColors()[i][maxSize] = bottom[i];
-                            fTop.getColors()[i][maxSize] = left[i];
-                            fRight.getColors()[i][0] = top[i];
-                            fBottom.getColors()[i][maxSize] = right[i];
+                            updateSquares(fLeft.getColors(), i, maxSize, i, bottom, fLeft.getZ());
+                            updateSquares(fTop.getColors(), i, maxSize, i, left, fTop.getZ());
+                            updateSquares(fRight.getColors(), i, 0, i, top, fRight.getZ());
+                            updateSquares(fBottom.getColors(), i, maxSize, i, right, fBottom.getZ());
+//                            fLeft.getColors()[i][maxSize] = bottom[i];
+
+//
+//                            fTop.getColors()[i][maxSize] = left[i];
+
+//
+//                            fRight.getColors()[i][0] = top[i];
+//
+//
+//                            fBottom.getColors()[i][maxSize] = right[i];
+
+
                         }
                     }
                     break;
@@ -244,18 +400,44 @@ public class Cube implements Comparable<Cube> {
                     }
                     if(r.isPrime()) {
                         for (int i = 0; i < cubeSize; i++) {
-                            fLeft.getColors()[maxSize][i] = top[i];
-                            fTop.getColors()[maxSize][i] = right[i];
-                            fRight.getColors()[maxSize][i] = bottom[i];
-                            fBottom.getColors()[maxSize][i] = left[i];
+                            updateSquares(fLeft.getColors(), maxSize, i, i, top, fLeft.getZ());
+                            updateSquares(fTop.getColors(), maxSize, i, i, right, fTop.getZ());
+                            updateSquares(fRight.getColors(), maxSize, i, i, bottom, fRight.getZ());
+                            updateSquares(fBottom.getColors(), maxSize, i, i, left, fBottom.getZ());
+//                            fLeft.getColors()[maxSize][i] = top[i];
+//
+//
+//                            fTop.getColors()[maxSize][i] = right[i];
+
+//
+//                            fRight.getColors()[maxSize][i] = bottom[i];
+//
+//
+//                            fBottom.getColors()[maxSize][i] = left[i];
+
+
                         }
                     }
                     else {
                         for (int i = 0; i < cubeSize; i++) {
-                            fLeft.getColors()[maxSize][i] = bottom[i];
-                            fTop.getColors()[maxSize][i] = left[i];
-                            fRight.getColors()[maxSize][i] = top[i];
-                            fBottom.getColors()[maxSize][i] = right[i];
+                            updateSquares(fLeft.getColors(), maxSize, i, i, bottom, fLeft.getZ());
+                            updateSquares(fTop.getColors(), maxSize, i, i, left, fTop.getZ());
+                            updateSquares(fRight.getColors(),maxSize, i, i, top, fRight.getZ());
+                            updateSquares(fBottom.getColors(),  maxSize, i, i, right, fBottom.getZ());
+//                            fLeft.getColors()[maxSize][i] = bottom[i];
+//
+//
+//                            fTop.getColors()[maxSize][i] = left[i];
+//                            fTop.getColors()[i][maxSize].setNewX(maxSize);
+//                            fTop.getColors()[i][maxSize].setNewY(i);
+//                            fTop.getColors()[i][maxSize].setNewZ(fTop.getZ());
+//
+//                            fRight.getColors()[maxSize][i] = top[i];
+//
+//
+//                            fBottom.getColors()[maxSize][i] = right[i];
+
+
                         }
                     }
                     break;
@@ -263,7 +445,7 @@ public class Cube implements Comparable<Cube> {
         }
     }
 
-    private Face[] getFaces() {
+    public Face[] getFaces() {
         return faces;
     }
 
@@ -290,7 +472,7 @@ public class Cube implements Comparable<Cube> {
         for(int k = 0; k < 6; k++) {
             for(int i = 0; i < cubeSize; i++) {
                 for (int j = 0; j < cubeSize; j++) {
-                    if (solvedStatus.getFaces()[k].getColors()[i][j] != this.getFaces()[k].getColors()[i][j]) return false;
+                    if (solvedStatus.getFaces()[k].getColors()[i][j].getColor() != this.getFaces()[k].getColors()[i][j].getColor()) return false;
                 }
             }
         }
@@ -312,19 +494,19 @@ public class Cube implements Comparable<Cube> {
         if(l != null && f != null && r != null && b != null && u != null && d != null) {
             for(int num = 0; num < cubeSize; num++) {
                 for(int i = 0; i < cubeSize; i++) {
-                    center.append("|").append(l.getColors()[num][i]);
+                    center.append("|").append(l.getColors()[num][i].getColor());
                 }
                 center.append("|   ");
                 for(int i = 0; i < cubeSize; i++) {
-                    center.append("|").append(f.getColors()[num][i]);
+                    center.append("|").append(f.getColors()[num][i].getColor());
                 }
                 center.append("|   ");
                 for(int i = 0; i < cubeSize; i++) {
-                    center.append("|").append(r.getColors()[num][i]);
+                    center.append("|").append(r.getColors()[num][i].getColor());
                 }
                 center.append("|   ");
                 for(int i = 0; i < cubeSize; i++) {
-                    center.append("|").append(b.getColors()[num][i]);
+                    center.append("|").append(b.getColors()[num][i].getColor());
                 }
                 center.append("|\n");
             }
