@@ -1,12 +1,16 @@
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class Cube {
+public class Cube implements Comparable<Cube> {
 
     private Face[] faces;
     private int cubeSize;
+    private double heuristic;
 
     Cube(int cubeSize) {
+        this.heuristic = 0;
         this.cubeSize = cubeSize;
         faces = new Face[6];
         for(int i = 0; i < 6; i++) {
@@ -17,6 +21,24 @@ public class Cube {
         }
     }
 
+    Cube(Cube c) {
+        this.faces = c.faces;
+        this.cubeSize = c.cubeSize;
+        this.heuristic = c.heuristic;
+    }
+
+    public double getHeuristic() {
+        return heuristic;
+    }
+
+    public void setHeuristic(double heuristic) {
+        this.heuristic = heuristic;
+    }
+
+    @Override
+    public int compareTo(@NotNull Cube c) {
+        return  Double.compare(this.heuristic, c.heuristic);
+    }
 
     void scramble(String r) {
         //ex: F'LR2F2B'
@@ -51,10 +73,10 @@ public class Cube {
         if(f != null) {
             for(int k = 0; k < rotation.getN(); k++) {
                 Face fCopy = new Face(f.getColors(), f.getFaceOrientation(), f.getCubeSize());
-                int iAux = 3;
+                int iAux = cubeSize;
                 int jAux = -1;
                 int jAuxPrime = -1;
-                int iAuxPrime = 3;
+                int iAuxPrime = cubeSize;
                 for(int i = 0; i < cubeSize ; i++) {
                     iAux--;
                     jAuxPrime++;
@@ -69,7 +91,7 @@ public class Cube {
                         }
                     }
                     jAux = -1;
-                    iAuxPrime = 3;
+                    iAuxPrime = cubeSize;
                 }
                 rotateAdjacents(f, rotation);
             }
@@ -81,67 +103,73 @@ public class Cube {
         Face fTop= getFaceByOrientation(f.getAdjacentFaces()[1]);
         Face fRight= getFaceByOrientation(f.getAdjacentFaces()[2]);
         Face fBottom= getFaceByOrientation(f.getAdjacentFaces()[3]);
-        char[] left;
-        char[] top;
-        char[] right;
-        char[] bottom;
+        char[] left = new char[cubeSize];
+        char[] top = new char[cubeSize];
+        char[] right = new char[cubeSize];
+        char[] bottom = new char[cubeSize];
         if(fLeft != null && fTop != null && fRight != null && fBottom != null){
+            int j = cubeSize-1;
+            int maxSize = cubeSize - 1;
             switch (f.getFaceOrientation()) {
                 case 'F':
-                    left = new char[]{fLeft.getColors()[2][2], fLeft.getColors()[1][2], fLeft.getColors()[0][2]};
-                    top = new char[]{fTop.getColors()[2][0], fTop.getColors()[2][1], fTop.getColors()[2][2]};
-                    right = new char[]{fRight.getColors()[2][0], fRight.getColors()[1][0], fRight.getColors()[0][0]};
-                    bottom = new char[]{fBottom.getColors()[0][0], fBottom.getColors()[0][1], fBottom.getColors()[0][2]};
+                    for(int i = 0; i < cubeSize; i++) {
+                        left[i] = fLeft.getColors()[maxSize-i][maxSize];
+                        top[i] = fTop.getColors()[maxSize][i];
+                        right[i] = fRight.getColors()[maxSize-i][0];
+                        bottom[i] = fBottom.getColors()[0][i];
+                    }
                     if(r.isPrime()) {
-                        int j = 2;
-                        for (int i = 0; i < 3; i++) {
-                            fLeft.getColors()[i][2] = top[j];
-                            fTop.getColors()[2][i] = right[j];
+                        for (int i = 0; i < cubeSize; i++) {
+                            fLeft.getColors()[i][maxSize] = top[j];
+                            fTop.getColors()[maxSize][i] = right[j];
                             fRight.getColors()[i][0] = bottom[j];
                             fBottom.getColors()[0][i] = left[j];
                             j--;
                         }
                     }
                     else {
-                        for (int i = 0; i < 3; i++) {
-                            fLeft.getColors()[i][2] = bottom[i];
-                            fTop.getColors()[2][i] = left[i];
+                        for (int i = 0; i < cubeSize; i++) {
+                            fLeft.getColors()[i][maxSize] = bottom[i];
+                            fTop.getColors()[maxSize][i] = left[i];
                             fRight.getColors()[i][0] = top[i];
                             fBottom.getColors()[0][i] = right[i];
                         }
                     }
                     break;
                 case 'B':
-                    left = new char[]{fLeft.getColors()[0][2], fLeft.getColors()[1][2], fLeft.getColors()[2][2]};
-                    top = new char[]{fTop.getColors()[0][2], fTop.getColors()[0][1], fTop.getColors()[0][0]};
-                    right = new char[]{fRight.getColors()[0][0], fRight.getColors()[1][0], fRight.getColors()[2][0]};
-                    bottom = new char[]{fBottom.getColors()[2][2], fBottom.getColors()[2][1], fBottom.getColors()[2][0]};
+                    for (int i = 0; i < cubeSize; i++) {
+                        left[i] = fLeft.getColors()[i][maxSize];
+                        top[i] = fTop.getColors()[0][maxSize-i];
+                        right[i] = fRight.getColors()[i][0];
+                        bottom[i] = fBottom.getColors()[maxSize][maxSize-i];
+                    }
                     if(r.isPrime()) {
-                        int j = 2;
-                        for (int i = 0; i < 3; i++) {
-                            fLeft.getColors()[i][2] = top[j];
+                        for (int i = 0; i < cubeSize; i++) {
+                            fLeft.getColors()[i][maxSize] = top[j];
                             fTop.getColors()[0][i] = right[j];
                             fRight.getColors()[i][0] = bottom[j];
-                            fBottom.getColors()[2][i] = left[j];
+                            fBottom.getColors()[maxSize][i] = left[j];
                             j--;
                         }
                     }
                     else {
-                        for (int i = 0; i < 3; i++) {
-                            fLeft.getColors()[i][2] = bottom[i];
+                        for (int i = 0; i < cubeSize; i++) {
+                            fLeft.getColors()[i][maxSize] = bottom[i];
                             fTop.getColors()[0][i] = left[i];
                             fRight.getColors()[i][0] = top[i];
-                            fBottom.getColors()[2][i] = right[i];
+                            fBottom.getColors()[maxSize][i] = right[i];
                         }
                     }
                     break;
                 case 'U':
-                    left = new char[]{fLeft.getColors()[0][0], fLeft.getColors()[0][1], fLeft.getColors()[0][2]};
-                    top = new char[]{fTop.getColors()[0][0], fTop.getColors()[0][1], fTop.getColors()[0][2]};
-                    right = new char[]{fRight.getColors()[0][0], fRight.getColors()[0][1], fRight.getColors()[0][2]};
-                    bottom = new char[]{fBottom.getColors()[0][0], fBottom.getColors()[0][1], fBottom.getColors()[0][2]};
+                    for (int i = 0; i < cubeSize; i++) {
+                        left[i] = fLeft.getColors()[0][i];
+                        top[i] = fTop.getColors()[0][i];
+                        right[i] = fRight.getColors()[0][i];
+                        bottom[i] = fBottom.getColors()[0][i];
+                    }
                     if(r.isPrime()) {
-                        for (int i = 0; i < 3; i++) {
+                        for (int i = 0; i < cubeSize; i++) {
                             fLeft.getColors()[0][i] = top[i];
                             fTop.getColors()[0][i] = right[i];
                             fRight.getColors()[0][i] = bottom[i];
@@ -149,7 +177,7 @@ public class Cube {
                         }
                     }
                     else {
-                        for (int i = 0; i < 3; i++) {
+                        for (int i = 0; i < cubeSize; i++) {
                             fLeft.getColors()[0][i] = bottom[i];
                             fTop.getColors()[0][i] = left[i];
                             fRight.getColors()[0][i] = top[i];
@@ -158,14 +186,15 @@ public class Cube {
                     }
                     break;
                 case 'L':
-                    left = new char[]{fLeft.getColors()[2][2], fLeft.getColors()[1][2], fLeft.getColors()[0][2]};
-                    top = new char[]{fTop.getColors()[0][0], fTop.getColors()[1][0], fTop.getColors()[2][0]};
-                    right = new char[]{fRight.getColors()[0][0], fRight.getColors()[1][0], fRight.getColors()[2][0]};
-                    bottom = new char[]{fBottom.getColors()[2][0], fBottom.getColors()[1][0], fBottom.getColors()[0][0]};
+                    for (int i = 0; i < cubeSize; i++) {
+                        left[i] = fLeft.getColors()[maxSize-i][maxSize];
+                        top[i] = fTop.getColors()[i][0];
+                        right[i] = fRight.getColors()[i][0];
+                        bottom[i] = fBottom.getColors()[maxSize-i][0];
+                    }
                     if(r.isPrime()) {
-                        int j = 2;
-                        for (int i = 0; i < 3; i++) {
-                            fLeft.getColors()[i][2] = top[j];
+                        for (int i = 0; i < cubeSize; i++) {
+                            fLeft.getColors()[i][maxSize] = top[j];
                             fTop.getColors()[i][0] = right[i];
                             fRight.getColors()[i][0] = bottom[j];
                             fBottom.getColors()[i][0] = left[i];
@@ -173,8 +202,8 @@ public class Cube {
                         }
                     }
                     else {
-                        for (int i = 0; i < 3; i++) {
-                            fLeft.getColors()[i][2] = bottom[i];
+                        for (int i = 0; i < cubeSize; i++) {
+                            fLeft.getColors()[i][maxSize] = bottom[i];
                             fTop.getColors()[i][0] = left[i];
                             fRight.getColors()[i][0] = top[i];
                             fBottom.getColors()[i][0] = right[i];
@@ -182,53 +211,60 @@ public class Cube {
                     }
                     break;
                 case 'R':
-                    left = new char[]{fLeft.getColors()[0][2], fLeft.getColors()[1][2], fLeft.getColors()[2][2]};
-                    top = new char[]{fTop.getColors()[2][2], fTop.getColors()[1][2], fTop.getColors()[0][2]};
-                    right = new char[]{fRight.getColors()[2][0], fRight.getColors()[1][0], fRight.getColors()[0][0]};
-                    bottom = new char[]{fBottom.getColors()[0][2], fBottom.getColors()[1][2], fBottom.getColors()[2][2]};
+                    for (int i = 0; i < cubeSize; i++) {
+                        left[i] = fLeft.getColors()[i][maxSize];
+                        top[i] = fTop.getColors()[maxSize-i][maxSize];
+                        right[i] = fRight.getColors()[maxSize-i][0];
+                        bottom[i] = fBottom.getColors()[i][maxSize];
+                    }
                     if(r.isPrime()) {
-                        int j = 2;
-                        for (int i = 0; i < 3; i++) {
-                            fLeft.getColors()[i][2] = top[j];
-                            fTop.getColors()[i][2] = right[i];
+                        for (int i = 0; i < cubeSize; i++) {
+                            fLeft.getColors()[i][maxSize] = top[j];
+                            fTop.getColors()[i][maxSize] = right[i];
                             fRight.getColors()[i][0] = bottom[j];
-                            fBottom.getColors()[i][2] = left[i];
+                            fBottom.getColors()[i][maxSize] = left[i];
                             j--;
                         }
                     }
                     else {
-                        for (int i = 0; i < 3; i++) {
-                            fLeft.getColors()[i][2] = bottom[i];
-                            fTop.getColors()[i][2] = left[i];
+                        for (int i = 0; i < cubeSize; i++) {
+                            fLeft.getColors()[i][maxSize] = bottom[i];
+                            fTop.getColors()[i][maxSize] = left[i];
                             fRight.getColors()[i][0] = top[i];
-                            fBottom.getColors()[i][2] = right[i];
+                            fBottom.getColors()[i][maxSize] = right[i];
                         }
                     }
                     break;
                 case 'D':
-                    left = new char[]{fLeft.getColors()[2][0], fLeft.getColors()[2][1], fLeft.getColors()[2][2]};
-                    top = new char[]{fTop.getColors()[2][0], fTop.getColors()[2][1], fTop.getColors()[2][2]};
-                    right = new char[]{fRight.getColors()[2][0], fRight.getColors()[2][1], fRight.getColors()[2][2]};
-                    bottom = new char[]{fBottom.getColors()[2][0], fBottom.getColors()[2][1], fBottom.getColors()[2][2]};
+                    for (int i = 0; i < cubeSize; i++) {
+                        left[i] = fLeft.getColors()[maxSize][i];
+                        top[i] = fTop.getColors()[maxSize][i];
+                        right[i] = fRight.getColors()[maxSize][i];
+                        bottom[i] = fBottom.getColors()[maxSize][i];
+                    }
                     if(r.isPrime()) {
-                        for (int i = 0; i < 3; i++) {
-                            fLeft.getColors()[2][i] = top[i];
-                            fTop.getColors()[2][i] = right[i];
-                            fRight.getColors()[2][i] = bottom[i];
-                            fBottom.getColors()[2][i] = left[i];
+                        for (int i = 0; i < cubeSize; i++) {
+                            fLeft.getColors()[maxSize][i] = top[i];
+                            fTop.getColors()[maxSize][i] = right[i];
+                            fRight.getColors()[maxSize][i] = bottom[i];
+                            fBottom.getColors()[maxSize][i] = left[i];
                         }
                     }
                     else {
-                        for (int i = 0; i < 3; i++) {
-                            fLeft.getColors()[2][i] = bottom[i];
-                            fTop.getColors()[2][i] = left[i];
-                            fRight.getColors()[2][i] = top[i];
-                            fBottom.getColors()[2][i] = right[i];
+                        for (int i = 0; i < cubeSize; i++) {
+                            fLeft.getColors()[maxSize][i] = bottom[i];
+                            fTop.getColors()[maxSize][i] = left[i];
+                            fRight.getColors()[maxSize][i] = top[i];
+                            fBottom.getColors()[maxSize][i] = right[i];
                         }
                     }
                     break;
             }
         }
+    }
+
+    private Face[] getFaces() {
+        return faces;
     }
 
     private Face getFaceByOrientation(char orientation) {
@@ -247,6 +283,18 @@ public class Cube {
                 return faces[5];
         }
         return null;
+    }
+
+    public boolean isSolved() {
+        Cube solvedStatus = new Cube(cubeSize);
+        for(int k = 0; k < 6; k++) {
+            for(int i = 0; i < cubeSize; i++) {
+                for (int j = 0; j < cubeSize; j++) {
+                    if (solvedStatus.getFaces()[k].getColors()[i][j] != this.getFaces()[k].getColors()[i][j]) return false;
+                }
+            }
+        }
+        return true;
     }
 
     @Override

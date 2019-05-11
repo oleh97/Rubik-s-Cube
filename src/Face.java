@@ -1,5 +1,3 @@
-import java.util.Arrays;
-
 public class Face {
 
     private char[][] colors;
@@ -7,7 +5,7 @@ public class Face {
     private int cubeSize;
     private char[] adjacentFaces;
 
-    public Face(int cubeSize ,char faceOrientation) {
+    Face(int cubeSize, char faceOrientation) {
         this.colors = new char[cubeSize][cubeSize];
         this.faceOrientation = faceOrientation;
         this.cubeSize = cubeSize;
@@ -33,18 +31,16 @@ public class Face {
         }
     }
 
-    public Face(char[][] colors, char faceOrientation, int cubeSize) {
+    Face(char[][] colors, char faceOrientation, int cubeSize) {
         this.colors = new char[cubeSize][cubeSize];
         for(int i = 0; i < cubeSize; i++) {
-            for(int j = 0; j < cubeSize; j++) {
-                this.colors[i][j] = colors[i][j];
-            }
+            System.arraycopy(colors[i], 0, this.colors[i], 0, cubeSize);
         }
         this.faceOrientation = faceOrientation;
         this.cubeSize = cubeSize;
     }
 
-    public void fillFace() {
+    void fillFace() {
         char color = getColor();
         for(int i = 0 ; i < cubeSize; i++) {
             for(int j = 0; j < cubeSize; j++) {
@@ -53,12 +49,8 @@ public class Face {
         }
     }
 
-    public char[] getAdjacentFaces() {
+    char[] getAdjacentFaces() {
         return adjacentFaces;
-    }
-
-    public void setAdjacentFaces(char[] adjacentFaces) {
-        this.adjacentFaces = adjacentFaces;
     }
 
     private char getColor() {
@@ -79,28 +71,16 @@ public class Face {
         return '-';
     }
 
-    public char[][] getColors() {
+    char[][] getColors() {
         return colors;
     }
 
-    public void setColors(char[][] colors) {
-        this.colors = colors;
-    }
-
-    public char getFaceOrientation() {
+    char getFaceOrientation() {
         return faceOrientation;
     }
 
-    public void setFaceOrientation(char faceOrientation) {
-        this.faceOrientation = faceOrientation;
-    }
-
-    public int getCubeSize() {
+    int getCubeSize() {
         return cubeSize;
-    }
-
-    public void setCubeSize(int cubeSize) {
-        this.cubeSize = cubeSize;
     }
 
     @Override
