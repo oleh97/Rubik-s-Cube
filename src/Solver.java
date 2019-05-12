@@ -9,24 +9,32 @@ public class Solver {
 
     static String solve(Cube cube) {
         TreeSet<Cube> toExplore = new TreeSet<>();
-        TreeSet<Cube> explored = new TreeSet<>();
+//        TreeSet<Cube> explored = new TreeSet<>();
+        cube.setHeuristic(manhattanDistance(cube));
         toExplore.add(cube);
         while (!toExplore.isEmpty()) {
             Cube c = toExplore.first();
             if(c.isSolved()) return c.movesToSolve.toString();
-            if(c.movesCount <= 5 && !explored.contains(c)) {
-                System.out.println(c.movesCount);
-                toExplore.addAll(generateCubeStates(c));
+            if(c.movesCount <= 20) {
+//                System.out.println(c.movesCount);
+                TreeSet<Cube> newNodes = generateCubeStates(c);
+                while (!newNodes.isEmpty()) {
+                    if(newNodes.first().getHeuristic() < c.getHeuristic()) {
+                        toExplore.add(newNodes.first());
+                    }
+                    newNodes.remove(newNodes.first());
+                }
+//                toExplore.addAll(generateCubeStates(c));
             }
             toExplore.remove(c);
-            explored.add(c);
+//            explored.add(c);
 //            System.out.println((c.getHeuristic()));
         }
         return "";
     }
 
-    private static Set<Cube> generateCubeStates(Cube cube) {
-        Set<Cube> s = new TreeSet<>();
+    private static TreeSet<Cube> generateCubeStates(Cube cube) {
+        TreeSet<Cube> s = new TreeSet<>();
         String aux;
         for (int i = 0; i < moves.length; i++) {
             Cube b = new Cube(cube);
@@ -43,7 +51,7 @@ public class Solver {
                     b.movesToSolve.append(moves[i]);
                     b.movesCount = cube.movesCount +1;
                     double mh = manhattanDistance(b);
-                    System.out.println("^Depth: "+b.movesCount+"| "+ moves[i] + "|" + mh);
+//                    System.out.println("^Depth: "+b.movesCount+"| "+ moves[i] + "|" + mh);
                     b.setHeuristic(mh);
                     s.add(b);
                 }

@@ -129,17 +129,18 @@ public class Cube implements Comparable<Cube> {
                     for(int j = 0; j < cubeSize; j++){
                         jAux++;
                         iAuxPrime--;
+                        int newZ = f.getZ();
                         if(rotation.isPrime()) {
                             f.getColors()[iAuxPrime][jAuxPrime] = fCopy.getColors()[i][j];
                             f.getColors()[iAuxPrime][jAuxPrime].setNewX(iAuxPrime);
                             f.getColors()[iAuxPrime][jAuxPrime].setNewY(jAuxPrime);
-                            f.getColors()[iAuxPrime][jAuxPrime].setNewZ(f.getZ());
+                            f.getColors()[iAuxPrime][jAuxPrime].setNewZ(newZ);
                         }
                         else {
                             f.getColors()[jAux][iAux] = fCopy.getColors()[i][j];
                             f.getColors()[jAux][iAux].setNewX(jAux);
                             f.getColors()[jAux][iAux].setNewY(iAux);
-                            f.getColors()[iAuxPrime][jAuxPrime].setNewZ(f.getZ());
+                            f.getColors()[jAux][iAux].setNewZ(newZ);
                         }
                     }
                     jAux = -1;
