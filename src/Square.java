@@ -35,7 +35,7 @@ public class Square {
             sumZ = Math.abs(this.z - this.newZ);
         }
 
-        return sumX+sumY+sumZ;
+        return (sumX+sumY+sumZ);
     }
 
     public int getNewX() {

@@ -69,7 +69,7 @@ public class Solver {
                 }
             }
         }
-        return sum;
+        return sum/8;
     }
 }
 
