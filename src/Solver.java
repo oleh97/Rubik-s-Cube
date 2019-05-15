@@ -18,15 +18,16 @@ public class Solver {
         boolean changed = false;
         toExplore.add(cube);
         while (true) {
+//            System.out.println("                                                          RESET: " + threshold);
             while (!toExplore.isEmpty()) {
                 Cube c = toExplore.first();
                 toExplore.remove(c);
                 if(c.isSolved()) return c.movesToSolve.toString();
                 if(c.movesCount <= 20) {
-//                System.out.println(c.movesCount);
                     TreeSet<Cube> newNodes = generateCubeStates(c);
                     while (!newNodes.isEmpty()) {
                         if(newNodes.first().getHeuristic() < threshold) {
+//                            System.out.println("NEW NODE TO EXPLORE: " +  newNodes.first().getHeuristic() + "| DEPTH: " + newNodes.first().movesCount);
                             toExplore.add(newNodes.first());
                         }
                         else if(newNodes.first().getHeuristic() > newThreshold && !changed){
@@ -94,6 +95,7 @@ public class Solver {
         return 0;
     }
 
+
     private static int checkMovesToPlaceEdge(Square front, Square opposite) {
         int neighbours = 0;
         int oriented = 0;
@@ -103,15 +105,48 @@ public class Solver {
         if(front.getColor() == front.getCurrentFace()) oriented++;
         if(opposite.getColor() == opposite.getCurrentFace()) oriented++;
 
-        if(neighbours == 2 && oriented == 1) return 1;
-        if(neighbours == 2 && oriented == 0)
-            if(front.getNewX() == front.getX() && front.getNewY() == front.getNewY())return 2;
-            else return 3;
-        if(oriented ==1 && neighbours == 1) return 2;
-        if(neighbours == 0) return 4;
+        if(oriented == 1 && neighbours == 2) return 1;
+        if(oriented == 1 && neighbours == 1) return 2;
+        if(neighbours == 2 && oriented == 0 && (nPermuted(front, opposite) == 1 && nOpposed(front, opposite) == 0) || nPermuted(front, opposite) == 0 && nOpposed(front, opposite) == 1) return 2;
         if(neighbours == 1 && oriented == 0) return 3;
+        if(neighbours == 2 && oriented == 0 && (nPermuted(front, opposite) >= 1 && nOpposed(front, opposite) >= 1)) return 3;
+        if(neighbours == 0 && oriented == 0) return 4;
         return 0;
     }
+
+    private static int nPermuted(Square a, Square b) {
+        int n = 0;
+        if(a.getColor() == b.getCurrentFace()) n++;
+        if(b.getColor() == a.getCurrentFace()) n++;
+        return n;
+    }
+
+    private static int nOpposed(Square a, Square b){
+        int n = 0;
+        if(a.getOpositeFace() == b.getCurrentFace()) n++;
+        if(b.getOpositeFace() == a.getCurrentFace()) n++;
+        return n;
+    }
+
+//    private static int checkMovesToPlaceEdge(Square front, Square opposite) {
+//        int neighbours = 0;
+//        int oriented = 0;
+//        if(front.getCurrentFace() != front.getOpositeFace()) neighbours++;
+//        if(opposite.getCurrentFace() != opposite.getOpositeFace()) neighbours++;
+//
+//        if(front.getColor() == front.getCurrentFace()) oriented++;
+//        if(opposite.getColor() == opposite.getCurrentFace()) oriented++;
+//
+//        if(neighbours == 2 && oriented == 1) return 1;
+//        if(neighbours == 2 && oriented == 0) {
+//            if(front.getNewX() == front.getX() && front.getNewY() == front.getNewY())return 2;
+//            else return 3;
+//        }
+//        if(oriented ==1 && neighbours == 1) return 2;
+//        if(neighbours == 0) return 4;
+//        if(neighbours == 1 && oriented == 0) return 3;
+//        return 0;
+//    }
 
     public static double manhattanDistance(Cube c) {
         double sumCorners = 0;
@@ -233,6 +268,6 @@ public class Solver {
                 }
             }
         }
-        return (sumCorners+sumEdges)/4;
+        return (sumCorners/4+sumEdges/4);
     }
 }
