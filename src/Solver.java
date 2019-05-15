@@ -13,8 +13,8 @@ public class Solver {
         TreeSet<Cube> toExplore = new TreeSet<>();
 //        TreeSet<Cube> explored = new TreeSet<>();
         cube.setHeuristic(manhattanDistance(cube));
-        double threshold = cube.getHeuristic();
-        double newThreshold = threshold;
+        float threshold = cube.getHeuristic();
+        float newThreshold = threshold;
         boolean changed = false;
         toExplore.add(cube);
         while (true) {
@@ -65,7 +65,7 @@ public class Solver {
                 b.setLastMove(moves[i]);
                 b.movesToSolve.append(moves[i]).append(" ");
                 b.movesCount = cube.movesCount +1;
-                double mh = manhattanDistance(b);
+                float mh = manhattanDistance(b);
 //                    System.out.println("^Depth: "+b.movesCount+"| "+ moves[i] + "|" + mh);
                 b.setHeuristic(mh + b.movesCount);
                 s.add(b);
@@ -89,7 +89,9 @@ public class Solver {
         if(neighbours >= 2 && oriented >= 1) return 1;
         if(oriented == 0 && neighbours == 3) return 2;
         if(oriented >= 1 && neighbours == 0) return 2;
-        if(oriented == 1 && neighbours == 1) return 2;
+        if(oriented == 1 && neighbours == 1){
+            return 2;
+        }
         if(oriented == 0 && neighbours == 0) return 3;
         if(oriented == 0 && neighbours == 2) return 3;
         return 0;
@@ -128,29 +130,9 @@ public class Solver {
         return n;
     }
 
-//    private static int checkMovesToPlaceEdge(Square front, Square opposite) {
-//        int neighbours = 0;
-//        int oriented = 0;
-//        if(front.getCurrentFace() != front.getOpositeFace()) neighbours++;
-//        if(opposite.getCurrentFace() != opposite.getOpositeFace()) neighbours++;
-//
-//        if(front.getColor() == front.getCurrentFace()) oriented++;
-//        if(opposite.getColor() == opposite.getCurrentFace()) oriented++;
-//
-//        if(neighbours == 2 && oriented == 1) return 1;
-//        if(neighbours == 2 && oriented == 0) {
-//            if(front.getNewX() == front.getX() && front.getNewY() == front.getNewY())return 2;
-//            else return 3;
-//        }
-//        if(oriented ==1 && neighbours == 1) return 2;
-//        if(neighbours == 0) return 4;
-//        if(neighbours == 1 && oriented == 0) return 3;
-//        return 0;
-//    }
-
-    public static double manhattanDistance(Cube c) {
-        double sumCorners = 0;
-        double sumEdges = 0;
+    public static float manhattanDistance(Cube c) {
+        float sumCorners = 0;
+        float sumEdges = 0;
         for(Face f : c.getFaces()) {
             for(Square[] s : f.getColors()) {
                 for (Square sq : s) {

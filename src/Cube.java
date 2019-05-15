@@ -7,7 +7,7 @@ public class Cube implements Comparable<Cube> {
 
     private Face[] faces;
     private int cubeSize;
-    private double heuristic;
+    private float heuristic;
 
     //The solver wont perform this move as is an already cheched state
     String lastMove;
@@ -63,11 +63,11 @@ public class Cube implements Comparable<Cube> {
         this.lastMove = lastMove;
     }
 
-    public double getHeuristic() {
+    public float getHeuristic() {
         return heuristic;
     }
 
-    public void setHeuristic(double heuristic) {
+    public void setHeuristic(float heuristic) {
         this.heuristic = heuristic;
     }
 
