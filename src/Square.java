@@ -14,9 +14,9 @@ public class Square {
         this.y = y;
         this.z = z;
 
-        this.newX = -1;
-        this.newY = -1;
-        this.newZ = -1;
+        this.newX = x;
+        this.newY = y;
+        this.newZ = z;
 
         this.color = color;
     }
@@ -36,6 +36,42 @@ public class Square {
         }
 
         return (sumX+sumY+sumZ);
+    }
+
+    public char getOpositeFace() {
+        switch (this.getZ()) {
+            case 0:
+                return 'B';
+            case 1:
+                return 'R';
+            case 2:
+                return 'O';
+            case 3:
+                return 'Y';
+            case 4:
+                return 'W';
+            case 5:
+                return 'G';
+        }
+        return 0;
+    }
+
+    public char getCurrentFace() {
+        switch (this.getNewZ()) {
+            case 0:
+                return 'G';
+            case 1:
+                return 'O';
+            case 2:
+                return 'R';
+            case 3:
+                return 'W';
+            case 4:
+                return 'Y';
+            case 5:
+                return 'B';
+        }
+        return 0;
     }
 
     public int getNewX() {

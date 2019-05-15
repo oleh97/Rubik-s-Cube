@@ -105,7 +105,7 @@ public class Face {
         return adjacentFaces;
     }
 
-    private char getColor() {
+    public char getColor() {
         switch (faceOrientation) {
             case 'F':
                 return 'G';

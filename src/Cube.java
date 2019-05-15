@@ -214,20 +214,6 @@ public class Cube implements Comparable<Cube> {
                             updateSquares(fRight.getColors(),i, 0, j, bottom, fRight.getZ());
                             updateSquares(fBottom.getColors(), maxSize, i, j, left, fBottom.getZ());
                             j--;
-
-//                            fLeft.getColors()[i][maxSize] = top[j];
-//                            fLeft.getColors()[i][maxSize].setNewX(i);
-//                            fLeft.getColors()[i][maxSize].setNewY(maxSize);
-//                            fLeft.getColors()[i][maxSize].setNewZ(fLeft.getZ());
-//
-//                            fTop.getColors()[0][i] = right[j];
-//                            fTop.getColors()[i][maxSize].setNewX(0);
-//                            fTop.getColors()[i][maxSize].setNewY(i);
-//                            fTop.getColors()[i][maxSize].setNewZ(fTop.getZ());
-//
-//                            fRight.getColors()[i][0] = bottom[j];
-//                            fBottom.getColors()[maxSize][i] = left[j];
-//                            j--;
                         }
                     }
                     else {
@@ -236,14 +222,6 @@ public class Cube implements Comparable<Cube> {
                             updateSquares(fTop.getColors(), 0, i, i, left, fTop.getZ());
                             updateSquares(fRight.getColors(), i, 0, i, top, fRight.getZ());
                             updateSquares(fBottom.getColors(), maxSize, i, i, right, fBottom.getZ());
-//                            fLeft.getColors()[i][maxSize] = bottom[i];
-
-//
-//                            fTop.getColors()[0][i] = left[i];
-
-//
-//                            fRight.getColors()[i][0] = top[i];
-//                            fBottom.getColors()[maxSize][i] = right[i];
                         }
                     }
                     break;
@@ -260,15 +238,6 @@ public class Cube implements Comparable<Cube> {
                             updateSquares(fTop.getColors(), 0, i, i, right, fTop.getZ());
                             updateSquares(fRight.getColors(),0, i, i, bottom, fRight.getZ());
                             updateSquares(fBottom.getColors(), 0, i, i, left, fBottom.getZ());
-
-//                            fLeft.getColors()[0][i] = top[i];
-
-//
-//                            fTop.getColors()[0][i] = right[i];
-
-//
-//                            fRight.getColors()[0][i] = bottom[i];
-//                            fBottom.getColors()[0][i] = left[i];
                         }
                     }
                     else {
@@ -277,18 +246,6 @@ public class Cube implements Comparable<Cube> {
                             updateSquares(fTop.getColors(), 0, i, i, left, fTop.getZ());
                             updateSquares(fRight.getColors(), 0, i, i, top, fRight.getZ());
                             updateSquares(fBottom.getColors(), 0, i, i, right, fBottom.getZ());
-//                            fLeft.getColors()[0][i] = bottom[i];
-
-//
-//                            fTop.getColors()[0][i] = left[i];
-
-//
-//                            fRight.getColors()[0][i] = top[i];
-//
-//
-//                            fBottom.getColors()[0][i] = right[i];
-
-
                         }
                     }
                     break;
@@ -307,18 +264,6 @@ public class Cube implements Comparable<Cube> {
                             updateSquares(fTop.getColors(), i, 0, i, right, fTop.getZ());
                             updateSquares(fRight.getColors(), i, 0, j, bottom, fRight.getZ());
                             updateSquares(fBottom.getColors(), i, 0, i, left, fBottom.getZ());
-//                            fLeft.getColors()[i][maxSize] = top[j];
-
-//
-//                            fTop.getColors()[i][0] = right[i];
-
-//
-//                            fRight.getColors()[i][0] = bottom[j];
-//
-//
-//                            fBottom.getColors()[i][0] = left[i];
-
-
                             j--;
                         }
                     }
@@ -328,18 +273,6 @@ public class Cube implements Comparable<Cube> {
                             updateSquares(fTop.getColors(), i, 0, i, left, fTop.getZ());
                             updateSquares(fRight.getColors(), i, 0, i, top, fRight.getZ());
                             updateSquares(fBottom.getColors(), i, 0, i, right, fBottom.getZ());
-//                            fLeft.getColors()[i][maxSize] = bottom[i];
-
-//
-//                            fTop.getColors()[i][0] = left[i];
-
-//
-//                            fRight.getColors()[i][0] = top[i];
-//
-//
-//                            fBottom.getColors()[i][0] = right[i];
-
-
                         }
                     }
                     break;
@@ -356,18 +289,6 @@ public class Cube implements Comparable<Cube> {
                             updateSquares(fTop.getColors(), i, maxSize, i, right, fTop.getZ());
                             updateSquares(fRight.getColors(), i, 0, j, bottom, fRight.getZ());
                             updateSquares(fBottom.getColors(), i, maxSize, i, left, fBottom.getZ());
-//                            fLeft.getColors()[i][maxSize] = top[j];
-
-//
-//                            fTop.getColors()[i][maxSize] = right[i];
-
-//
-//                            fRight.getColors()[i][0] = bottom[j];
-//
-//
-//                            fBottom.getColors()[i][maxSize] = left[i];
-
-
                             j--;
                         }
                     }
@@ -377,18 +298,6 @@ public class Cube implements Comparable<Cube> {
                             updateSquares(fTop.getColors(), i, maxSize, i, left, fTop.getZ());
                             updateSquares(fRight.getColors(), i, 0, i, top, fRight.getZ());
                             updateSquares(fBottom.getColors(), i, maxSize, i, right, fBottom.getZ());
-//                            fLeft.getColors()[i][maxSize] = bottom[i];
-
-//
-//                            fTop.getColors()[i][maxSize] = left[i];
-
-//
-//                            fRight.getColors()[i][0] = top[i];
-//
-//
-//                            fBottom.getColors()[i][maxSize] = right[i];
-
-
                         }
                     }
                     break;
@@ -405,18 +314,6 @@ public class Cube implements Comparable<Cube> {
                             updateSquares(fTop.getColors(), maxSize, i, i, right, fTop.getZ());
                             updateSquares(fRight.getColors(), maxSize, i, i, bottom, fRight.getZ());
                             updateSquares(fBottom.getColors(), maxSize, i, i, left, fBottom.getZ());
-//                            fLeft.getColors()[maxSize][i] = top[i];
-//
-//
-//                            fTop.getColors()[maxSize][i] = right[i];
-
-//
-//                            fRight.getColors()[maxSize][i] = bottom[i];
-//
-//
-//                            fBottom.getColors()[maxSize][i] = left[i];
-
-
                         }
                     }
                     else {
@@ -425,20 +322,6 @@ public class Cube implements Comparable<Cube> {
                             updateSquares(fTop.getColors(), maxSize, i, i, left, fTop.getZ());
                             updateSquares(fRight.getColors(),maxSize, i, i, top, fRight.getZ());
                             updateSquares(fBottom.getColors(),  maxSize, i, i, right, fBottom.getZ());
-//                            fLeft.getColors()[maxSize][i] = bottom[i];
-//
-//
-//                            fTop.getColors()[maxSize][i] = left[i];
-//                            fTop.getColors()[i][maxSize].setNewX(maxSize);
-//                            fTop.getColors()[i][maxSize].setNewY(i);
-//                            fTop.getColors()[i][maxSize].setNewZ(fTop.getZ());
-//
-//                            fRight.getColors()[maxSize][i] = top[i];
-//
-//
-//                            fBottom.getColors()[maxSize][i] = right[i];
-
-
                         }
                     }
                     break;
@@ -450,7 +333,7 @@ public class Cube implements Comparable<Cube> {
         return faces;
     }
 
-    private Face getFaceByOrientation(char orientation) {
+    public Face getFaceByOrientation(char orientation) {
         switch (orientation) {
             case 'F':
                 return faces[0];
