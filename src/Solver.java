@@ -53,26 +53,21 @@ public class Solver {
 
     private static TreeSet<Cube> generateCubeStates(Cube cube) {
         TreeSet<Cube> s = new TreeSet<>();
-        String aux;
+        String aux = "-";
+        if(cube.getLastMove() != null) {
+            aux = String.valueOf(cube.getLastMove().charAt(0));
+        }
         for (int i = 0; i < moves.length; i++) {
             Cube b = new Cube(cube);
-            if(cube.getLastMove() != null) {
-                if(cube.getLastMove().length() > 1) {
-                    aux = String.valueOf(cube.getLastMove().charAt(0));
-                }
-                else {
-                    aux = cube.getLastMove() + "\'";
-                }
-                if (!moves[i].equals(aux)) {
-                    b.scramble(moves[i]);
-                    b.setLastMove(moves[i]);
-                    b.movesToSolve.append(moves[i]).append(" ");
-                    b.movesCount = cube.movesCount +1;
-                    double mh = manhattanDistance(b);
+            if (!moves[i].contains(aux)) {
+                b.scramble(moves[i]);
+                b.setLastMove(moves[i]);
+                b.movesToSolve.append(moves[i]).append(" ");
+                b.movesCount = cube.movesCount +1;
+                double mh = manhattanDistance(b);
 //                    System.out.println("^Depth: "+b.movesCount+"| "+ moves[i] + "|" + mh);
-                    b.setHeuristic(mh + b.movesCount);
-                    s.add(b);
-                }
+                b.setHeuristic(mh + b.movesCount);
+                s.add(b);
             }
         }
         return s;
@@ -241,4 +236,3 @@ public class Solver {
         return (sumCorners+sumEdges)/4;
     }
 }
-
